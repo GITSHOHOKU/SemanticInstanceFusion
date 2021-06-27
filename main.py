@@ -34,9 +34,9 @@ def get_classes(path):
         mapping = {}
         color_dict = {}
         for row in labelreader:
-            labels[row[0]] = row[1]
-            mapping[row[1]] = int(row[0])
-            color_dict[int(row[0])] = (int(row[2]), int(row[3]), int(row[4]))
+            labels[row[0]] = row[1]     # idx->class_name
+            mapping[row[1]] = int(row[0])  # class_name->idx
+            color_dict[int(row[0])] = (int(row[2]), int(row[3]), int(row[4])) # idx->color
     return labels, mapping, color_dict
 
 ########################
@@ -102,14 +102,14 @@ if __name__ == '__main__':
                                               Save_Flag = save_masks, mask_path= mask_path, labels_path= labels_path,
                                               prefetch_size = prefetch_size, score_threshold = score_threshold,
                                               mask_threshold= mask_threshold, skip = skip)
-    elif segment_mode == 1:
+    elif segment_mode == 1: #just using label prediction output
         mask_generator = MaskFromFileGenerator(mask_path)
     elif segment_mode == 2:
         device = Model.get_device()
         mask_generator = CachedMaskGenerator(rgb_path, model_path, mask_path, img_size, device, labels_path,
                                              prefetch_size=prefetch_size,
                                              score_threshold = score_threshold, mask_threshold= mask_threshold, skip = skip)
-    elif segment_mode == 3:
+    elif segment_mode == 3:  #need instance gt
         mask_generator = MaskFromGroundtruthGenerator(gt_instance_path, gt_label_path, img_size)
 
     start_time = time.time()

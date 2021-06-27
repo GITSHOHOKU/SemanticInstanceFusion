@@ -14,10 +14,10 @@ filter_interval: -1 # do not apply median filter
 
 #size of the processed images
 img_size: !!python/tuple [640, 480]
-#0: only using dynamic mask generator
-#1: only using file mask generator (only works if all masks can be found at mask_path)
-#2: using both (uses more gpu power than 1)
-#3: using ScanNet ground truth, requires gt_instance_path & gt_label_path set correctly
+#0: only using dynamic mask generator (using model to get segmentation and fusion simultaneously)
+#1: only using file mask generator (only works if all masks can be found at mask_path) (using already result fusion)
+#2: using both (uses more gpu power than 1) (dynamic fusion and already result fusion together)
+#3: using ScanNet ground truth, requires gt_instance_path & gt_label_path set correctly  (get gt fusion)
 segment_mode: 2
 
 #############################################

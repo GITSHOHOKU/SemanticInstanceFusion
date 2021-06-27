@@ -35,7 +35,7 @@ class Segmenter:
         self.load_model(model_path)
         self.path_to_data = path_to_data
         self.img_size = img_size
-        self.label_path = label_path
+        self.label_path = label_path  #sheet to search matching label and there class_name
         self.batch_size = batch_size
         self.classes = Model.get_classes(label_path)
         self.mask_threshold = mask_threshold
@@ -60,9 +60,9 @@ class Segmenter:
             for i in range(0, img_list.__len__(), self.batch_size):
                 imgs = np.array([self.load_img(img_list[i + number]) for number in range(self.batch_size)])
                 imgs = torch.tensor(imgs).to(self.device)
-                results = self.model.forward(imgs)
+                results = self.model.forward(imgs)  #including batch size
                 for j in range(results.__len__()):
-                    mask_list.append(self.get_mask_from_result(results[j]))
+                    mask_list.append(self.get_mask_from_result(results[j])) # one result could add more mask
 
         return mask_list
 

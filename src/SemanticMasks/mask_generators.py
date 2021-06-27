@@ -43,7 +43,8 @@ class MaskFromGroundtruthGenerator:
         nyu40ids = mapping_df['nyu40id'].values
         return dict(zip(labels, nyu40ids))
 
-    def getMaskForNumber(self, img_number):
+    def getMaskForNumber(self, img_number): # add mask for all instance in one pic (if one instance has more than
+        # one label, usually add minimal label one)
         """
         @param img_number: number of the current image
         @return: masks: R-CNN-Masks for the current image
@@ -104,10 +105,10 @@ class MaskFromFileGenerator:
         @return: masks: R-CNN-Masks for the current image
         """
         path = self.mask_path + "/%05d" % img_number
-        masks, labels, scores = load_result(path)
+        masks, labels, scores = load_result(path)  # return every class label score with specific file name attribute (e.g. idx_class_score.png)
         return [RCNN_Mask(masks[i], labels[i], scores[i]) for i in range(len(masks))]
 
-class DynamicMaskGenerator:
+class DynamicMaskGenerator:  #using skip to generate mask by custumer model with sequeenze images
     def __init__(self, rgb_path, model_path, img_size, device, labels_path,
                  mask_path= "NOT A REAL PATH", Save_Flag = False, prefetch_size = 1, batch_size = 1, score_threshold = 0.5, mask_threshold = 0.5, skip = 10):
         """
@@ -145,10 +146,12 @@ class DynamicMaskGenerator:
             return self.prefetched_masks.pop(img_number)
         print("no cached mask found. going to prefetch from segmenter")
         img_list = list(range(img_number, img_number+self.prefetch_size*self.skip, self.skip))
-        masks = self.segmenter.get_mask_for_images(img_list)
+
+        masks = self.segmenter.get_mask_for_images(img_list)  # key function drive mask for generator
+
         for j in range(len(masks)):
             mask_list = masks[j]
-            mask_list.reverse()
+            mask_list.reverse()  # TODO why using reverse to per image mask outputs?
             self.prefetched_masks[img_list[j]] = mask_list
             if self.save_flag:
                 s = self.mask_path + "/%05d" % (img_number+img_list[j])
