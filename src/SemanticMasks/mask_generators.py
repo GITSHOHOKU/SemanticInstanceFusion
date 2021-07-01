@@ -18,6 +18,9 @@ with open('params.yaml') as file:
 
 pattern = re.compile("\d+_\d+_.+")
 
+# using in preprocessor, called by create class image
+# transform each output channel to a Rcnn_mask.py type mask datatype
+
 
 #############################################################################################
 #        Provides different ways to obtain semantic masks for a RGB image                   #
@@ -66,7 +69,7 @@ class MaskFromGroundtruthGenerator:
             l = np.unique(label_image[instance_masks[i,:,:]])
             if len(l) > 1:
                 print('Warning: Ground truth instance contains multiple labels!')
-            labels[i] = int(l[0])
+            labels[i] = int(l[0]) # only count in one label in one instance
 
             if labels[i] == 0:
                 instances = np.delete(instances, i)

@@ -8,6 +8,7 @@ import yaml
 from PIL import Image
 
 from src.SemanticMasks.instance_generator import InstanceGenerator
+from skimage.segmentation import mark_boundaries #integer with slic, slic output the index integer of each superpixel area
 
 with open('params.yaml') as file:
     params = yaml.load(file, Loader=yaml.FullLoader)
@@ -73,10 +74,10 @@ class Preprocessor:
         self.instance_generator.combine_instances(_class, orig, rest)
         self.fuse_instances = False
 
-    def get_superpixel_score(self, superpixels, mask):
+    def get_superpixel_score(self, superpixels, mask): # Use superpixel and depth assumption to get more precious segment scores
 
         # Increase assignment by one to get rid of index zero as zero is reserved for
-        # the area outside the mask in assignment_masked.
+        # the area outside the mask in assignment_masked.  Because slic segment index start from 0
         superpixels += 1
         superpixels_masked = superpixels * mask
 
@@ -162,7 +163,7 @@ class Preprocessor:
                 continue
             if self.use_sp:
                 score = score * self.get_superpixel_score(superpixels, non_bin_mask >= self.rcnn_threshold)
-            if self.use_depth:
+            if self.use_depth: # TODO can be modify for specific task
                 # altering mask with depth image
                 temp = np.where(non_bin_mask >= self.rcnn_threshold, depth_im, np.nan)
                 median = np.nanmedian(temp)
@@ -173,7 +174,7 @@ class Preprocessor:
                 m = non_bin_mask * score
 
 
-            mask = np.logical_and(m >= img[:,:,2], m >= self.rcnn_threshold_2)
+            mask = np.logical_and(m >= img[:,:,2], m >= self.rcnn_threshold_2) # todo original set is 40, 50 maybe to large
 
             # Leaves out this mask if the mask is empty.
             if (np.sum(mask) == 0):
@@ -187,7 +188,7 @@ class Preprocessor:
 
 
             # Set R channel to instance
-            img[mask, 0] = inst_id
+            img[mask, 0] = inst_id  # TODO transform RCNN_mask.py output to instance type by instance_generator
             # Set G channel of this mask to the value of the class
             img[mask, 1] = label
             # Set B channel of this mask to the score of the prediction
@@ -195,7 +196,7 @@ class Preprocessor:
             #del mask, non_bin_mask, score, label, rcnn_mask
         del masks
         print("postprocessing of masks took", (time.time() - t1) * 1000)
-        return img
+        return img  # highlight collect all channel mask in one img with instance and label with scores
 
     def downscale_images(self, img_number):
         """

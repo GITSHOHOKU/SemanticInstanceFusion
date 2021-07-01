@@ -92,7 +92,7 @@ class Segmenter:
             if scores[i] > self.score_threshold:
                 # Create non-binary object mask and draw it into the test image.
                 mask = (masks[i, 0, :, :] * 255).astype(np.uint8)
-                if erode:
+                if erode: # TODO if there need to erosion for defects segmentation
                     mask = scipy.ndimage.morphology.grey_erosion(mask, size=(3, 3))
                 mask = Image.fromarray(mask, mode='L')
                 rcnn_masks.append(RCNN_Mask(mask, labels[i], scores[i]))

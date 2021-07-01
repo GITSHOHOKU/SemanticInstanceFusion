@@ -30,7 +30,7 @@ class InstanceGenerator:
         self.max_instances = max_instances
         self.num_classes = num_classes
         self.critical_instance_count = False
-        self.instance_matrix = np.zeros((num_classes, max_instances, 3)) + self.no_instance
+        self.instance_matrix = np.zeros((num_classes, max_instances, 3)) + self.no_instance # 3 for real world position ?
         self.intrinisc_inv = np.linalg.inv(np.loadtxt(intrinsics_path))
         self.class_inst_to_number_map = None
         self.class_inst_cnt = 0
@@ -209,7 +209,7 @@ class InstanceGenerator:
         if debug:
             print("instance ID", inst_id + 1, " was closest with dist:", dist)
 
-        if dist > threshold or [class_numb, inst_id] in still_hot:
+        if dist > threshold or [class_numb, inst_id] in still_hot:  # todo modify instance allocation criteria
             if debug:
                 print("instance too far apart. Going to create new instance")
             try:
