@@ -429,9 +429,9 @@ class TSDFVolume:
         color_im = color_im.astype(np.float32)
         color_im = np.floor(color_im[..., 2] * self._color_const + color_im[..., 1] * 256 + color_im[..., 0])
 
-        # Fold class color image into a single channel image
+        # Fold class color image into a single channel image #todo encode class_im to one channel image, and decode it in last intergration process
         class_im = class_im.astype(np.float32)
-        class_im = np.floor(class_im[..., 2] * self._color_const + class_im[..., 1] * 256 + class_im[..., 0])
+        class_im = np.floor(class_im[..., 2] * self._color_const + class_im[..., 1] * 256 + class_im[..., 0])  #todo use 256 decode class_im
 
 
         print("frame: ", self.frame)
@@ -484,7 +484,8 @@ class TSDFVolume:
                                                                      np.logical_and(pix_y < im_h,
                                                                                     pix_z > 0))))
             depth_val = np.zeros(pix_x.shape)
-            depth_val[valid_pix] = depth_im[pix_y[valid_pix], pix_x[valid_pix]]
+            depth_val[valid_pix] = depth_im[pix_x[valid_pix], pix_y[valid_pix]]
+            #depth_val[valid_pix] = depth_im[pix_y[valid_pix], pix_x[valid_pix]]
 
             # Integrate TSDF
             depth_diff = depth_val - pix_z
@@ -506,6 +507,7 @@ class TSDFVolume:
             old_g = np.floor((old_color - old_b * self._color_const) / 256)
             old_r = old_color - old_b * self._color_const - old_g * 256
             new_color = color_im[pix_y[valid_pts], pix_x[valid_pts]]
+            #new_color = color_im[pix_x[valid_pts], pix_y[valid_pts]]
             new_b = np.floor(new_color / self._color_const)
             new_g = np.floor((new_color - new_b * self._color_const) / 256)
             new_r = new_color - new_b * self._color_const - new_g * 256
@@ -520,7 +522,9 @@ class TSDFVolume:
             old_score = np.floor(class_numbers_score / self._color_const)
             old_label = np.floor((class_numbers_score - old_score * self._color_const) / 256)
 
+            #todo decode class_im with 256
             new_class_numbers_score = class_im[pix_y[valid_pts], pix_x[valid_pts]]
+            #new_class_numbers_score = class_im[pix_x[valid_pts], pix_y[valid_pts]]
             new_score = np.floor(new_class_numbers_score / self._color_const)
             new_label = np.floor((new_class_numbers_score - new_score * self._color_const) / 256)
 
@@ -536,8 +540,8 @@ class TSDFVolume:
 
             class_vol[voxel_idx] = new_score*256*256+new_label*256;
                 """
-
-            zero = np.logical_or(old_label == 0, old_score == 0)
+            #todo logical operate on class fusing
+            zero = np.logical_or(old_label == 0, old_score == 0) #todo should there be logical_and ?
             skip_these = np.logical_or(old_label == 0, old_score == 0)
             not_skip_these = np.logical_not(skip_these)
 

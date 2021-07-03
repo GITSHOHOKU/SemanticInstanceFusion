@@ -174,7 +174,7 @@ class Preprocessor:
                 m = non_bin_mask * score
 
 
-            mask = np.logical_and(m >= img[:,:,2], m >= self.rcnn_threshold_2) # todo original set is 40, 50 maybe to large
+            mask = np.logical_and(m >= img[:,:,2], m >= self.rcnn_threshold_2) # todo original set is 40, 50 maybe to large # solve in #174 turned score to [0,255]
 
             # Leaves out this mask if the mask is empty.
             if (np.sum(mask) == 0):

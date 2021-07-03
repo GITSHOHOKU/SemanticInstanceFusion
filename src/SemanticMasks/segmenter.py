@@ -91,7 +91,7 @@ class Segmenter:
         for i in range(masks.shape[0]):
             if scores[i] > self.score_threshold:
                 # Create non-binary object mask and draw it into the test image.
-                mask = (masks[i, 0, :, :] * 255).astype(np.uint8)
+                mask = (masks[i, 0, :, :] * 255).astype(np.uint8) # todo here encode mask value to [0, 255] for later interger process
                 if erode: # TODO if there need to erosion for defects segmentation
                     mask = scipy.ndimage.morphology.grey_erosion(mask, size=(3, 3))
                 mask = Image.fromarray(mask, mode='L')
